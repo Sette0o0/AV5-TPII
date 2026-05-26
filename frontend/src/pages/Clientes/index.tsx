@@ -35,7 +35,7 @@ function Cliente() {
         {/* Lista de clientes */}
         <div className="flex flex-col gap-4">
           {/* Header */}
-          <div className="flex justify-end w-full">
+          <div className="flex justify-end gap-4 w-full">
             <Button className="mr-auto" onClick={() => setOpenCadastro(true)}>
               <Plus />
               Cliente
