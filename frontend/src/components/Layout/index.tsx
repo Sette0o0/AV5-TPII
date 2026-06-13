@@ -31,7 +31,6 @@ export default Layout;
 
 const links = [
   { to: "/clientes", label: "Clientes" },
-  { to: "/dependentes", label: "Dependentes" },
   { to: "/hospedagens", label: "Hospedagens" },
   { to: "/acomodacoes", label: "Acomodações" },
 ];

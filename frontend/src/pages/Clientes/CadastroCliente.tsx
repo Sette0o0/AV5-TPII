@@ -8,166 +8,145 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { TipoDocumento } from "@/types/enums";
+import { TiposDocumentoEnum } from "@/types/enums";
+import type { PostClienteTitularReq } from "@/types/requests";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
+import DocumentosFieldArray from "./DocumentosFieldArray";
+import TelefonesFieldArray from "./TelefonesFieldArray";
+import { cadastrarTitular } from "@/services/Clientes";
 
-type FormType = {
-  nome: string;
-  nomeSocial: string;
-  dataNascimento: string;
-  tipoDocumento: TipoDocumento | "";
-  numeroDocumento: string;
-  dataExpedicao: string;
-  ddd: string;
-  numeroCelular: string;
-};
+type FormType = PostClienteTitularReq;
 
 type Props = {
   onClose: () => void;
 };
 
 export default function CadastroCliente({ onClose }: Props) {
-  const { register, handleSubmit, control } = useForm<FormType>({
+  const methods = useForm<FormType>({
     defaultValues: {
       nome: "",
       nomeSocial: "",
       dataNascimento: "",
-      tipoDocumento: "",
-      numeroDocumento: "",
-      dataExpedicao: "",
-      ddd: "",
-      numeroCelular: "",
+      endereco: {
+        bairro: "",
+        cidade: "",
+        codigoPostal: "",
+        estado: "",
+        pais: "",
+        rua: "",
+      },
+      documentos: [
+        {
+          numero: "",
+          tipo: TiposDocumentoEnum.cpf,
+          dataExpedicao: "",
+        },
+      ],
+      telefones: [
+        {
+          ddd: "",
+          numero: "",
+        },
+      ],
     },
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(data: FormType) {
-    setIsLoading(true);
-    console.log(data);
-    setIsLoading(false);
-    onClose();
+    if (isLoading) return
+
+    try {
+      setIsLoading(true);
+
+      await cadastrarTitular(data);
+
+      onClose();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full">
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)} className="flex flex-col w-full">
         <FieldGroup>
           <FieldSet className="@container">
             <FieldLegend>Dados Pessoais</FieldLegend>
             <FieldGroup className="grid grid-cols-1 @sm:grid-cols-2 gap-5">
               <Field>
                 <FieldLabel>Nome:</FieldLabel>
-                <Input {...register("nome")} placeholder="Nome..." />
+                <Input {...methods.register("nome")} placeholder="Nome..." />
               </Field>
               <Field>
                 <FieldLabel>Nome Social:</FieldLabel>
-                <Input
-                  {...register("nomeSocial")}
-                  placeholder="Nome social..."
-                />
+                <Input {...methods.register("nomeSocial")} placeholder="Nome social..." />
               </Field>
               <Field>
                 <FieldLabel>Data de Nascimento:</FieldLabel>
-                <Input type="date" {...register("dataNascimento")} />
+                <Input type="date" {...methods.register("dataNascimento")} />
               </Field>
             </FieldGroup>
           </FieldSet>
+
           <FieldSeparator />
+
           <FieldSet>
-            <FieldLegend>Telefone e Endereço</FieldLegend>
-            <FieldGroup className="flex flex-row gap-5">
-              <Field className="flex-1">
-                <FieldLabel>DDD:</FieldLabel>
-                <Input
-                  {...register("ddd")}
-                  type="number"
-                  placeholder="DDD..."
-                />
-              </Field>
-              <Field className="flex-3">
-                <FieldLabel>Celular:</FieldLabel>
-                <Input
-                  {...register("numeroCelular")}
-                  type="number"
-                  placeholder="Número de celular..."
-                />
-              </Field>
-            </FieldGroup>
-          </FieldSet>
-          <FieldSeparator />
-          <FieldSet>
-            <FieldLegend>Documento</FieldLegend>
-            <FieldGroup>
+            <FieldLegend>Endereço</FieldLegend>
+            <FieldGroup className="grid grid-cols-1 @sm:grid-cols-2 gap-5">
               <Field>
-                <FieldLabel>Tipo Documento</FieldLabel>
-
-                <Controller
-                  name="tipoDocumento"
-                  control={control}
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de documento" />
-                      </SelectTrigger>
-
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value={TipoDocumento.CPF}>
-                            {TipoDocumento.CPF}
-                          </SelectItem>
-
-                          <SelectItem value={TipoDocumento.RG}>
-                            {TipoDocumento.RG}
-                          </SelectItem>
-
-                          <SelectItem value={TipoDocumento.Passaporte}>
-                            {TipoDocumento.Passaporte}
-                          </SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                <FieldLabel>Rua</FieldLabel>
+                <Input {...methods.register("endereco.rua")} />
               </Field>
-              <FieldGroup className="grid grid-cols-1 @sm:grid-cols-2 gap-5!">
-                <Field>
-                  <FieldLabel>Número:</FieldLabel>
-                  <Input
-                    {...register("numeroDocumento")}
-                    placeholder="Número do documento..."
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Data de Expedição:</FieldLabel>
-                  <Input
-                    {...register("dataExpedicao")}
-                    placeholder="Data de expedição..."
-                  />
-                </Field>
-              </FieldGroup>
+              <Field>
+                <FieldLabel>Bairro</FieldLabel>
+                <Input {...methods.register("endereco.bairro")} />
+              </Field>
+              <Field>
+                <FieldLabel>Cidade</FieldLabel>
+                <Input {...methods.register("endereco.cidade")} />
+              </Field>
+              <Field>
+                <FieldLabel>Estado</FieldLabel>
+                <Input {...methods.register("endereco.estado")} />
+              </Field>
+              <Field>
+                <FieldLabel>País</FieldLabel>
+                <Input {...methods.register("endereco.pais")} />
+              </Field>
+              <Field>
+                <FieldLabel>CEP</FieldLabel>
+                <Input {...methods.register("endereco.codigoPostal")} />
+              </Field>
             </FieldGroup>
           </FieldSet>
+
+          <FieldSeparator />
+
+          <FieldSet>
+            <FieldLegend>Telefones</FieldLegend>
+            <TelefonesFieldArray />
+          </FieldSet>
+
+          <FieldSeparator />
+
+          <FieldSet>
+            <FieldLegend>Documentos</FieldLegend>
+            <DocumentosFieldArray />
+          </FieldSet>
+
           <FieldGroup className="flex flex-row gap-4 *:flex-1">
             <span></span>
             <Button type="button" variant={"outline"} onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit">
-              {isLoading ? "carregando..." : "Cadastrar"}
-            </Button>
+            <Button type="submit" disabled={isLoading}>{isLoading ? "carregando..." : "Cadastrar"}</Button>
           </FieldGroup>
         </FieldGroup>
       </form>
-    </>
+    </FormProvider>
   );
 }

@@ -4,13 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { normalizarString } from "@/lib/utils";
 import { listarClientes } from "@/services/Clientes";
-import type { Cliente } from "@/types/entidades";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import CadastroCliente from "./CadastroCliente";
+import type { GetClientesRes } from "@/types/responses";
+import { useNavigate } from "react-router-dom";
 
 function Cliente() {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [clientes, setClientes] = useState<GetClientesRes[]>([]);
 
   const [search, setSearch] = useState("");
 
@@ -18,7 +19,7 @@ function Cliente() {
 
   async function carregarClientes() {
     try {
-      setClientes(await listarClientes());
+      setClientes((await listarClientes()) ?? []);
     } catch (error) {
       console.error("Erro ao carregar clientes.");
     }
@@ -59,8 +60,18 @@ function Cliente() {
           </div>
         </div>
       </div>
-      <Modal open={openCadastro} setOpen={setOpenCadastro} title="Cadastro de Cliente" className="min-w-lg">
-        <CadastroCliente onClose={() => setOpenCadastro(false)} />
+      <Modal
+        open={openCadastro}
+        setOpen={setOpenCadastro}
+        title="Cadastro de Cliente"
+        className="min-w-lg"
+      >
+        <CadastroCliente
+          onClose={() => {
+            setOpenCadastro(false);
+            carregarClientes();
+          }}
+        />
       </Modal>
     </>
   );
@@ -69,11 +80,13 @@ function Cliente() {
 export default Cliente;
 
 type ListaClientesProps = {
-  clientes?: Cliente[];
+  clientes?: GetClientesRes[];
   search?: string;
 };
 
 function ListaClientes({ clientes = [], search = "" }: ListaClientesProps) {
+  const navigate = useNavigate();
+
   const clientesFiltrados = useMemo(() => {
     return clientes.filter((cliente) => {
       return normalizarString(cliente.nome).includes(normalizarString(search));
@@ -87,7 +100,7 @@ function ListaClientes({ clientes = [], search = "" }: ListaClientesProps) {
           <Card
             key={cliente.nome + cliente.endereco}
             className="gap-4 cursor-pointer hover:scale-102 active:scale-98 transition hover:bg-accent"
-            onClick={() => alert()}
+            onClick={() => navigate("/" + cliente.id, { relative: "route", replace: true })}
           >
             <CardHeader>
               <CardTitle>{cliente.nome}</CardTitle>
@@ -97,7 +110,10 @@ function ListaClientes({ clientes = [], search = "" }: ListaClientesProps) {
               <div className="flex flex-col">
                 <div className="flex flex-row gap-2">
                   <div className="text-muted-foreground">Endereço:</div>
-                  <div>
+                  <div
+                    title={`${cliente.endereco.estado} - ${cliente.endereco.cidade}`}
+                    className="truncate"
+                  >
                     {cliente.endereco.estado} - {cliente.endereco.cidade}
                   </div>
                 </div>

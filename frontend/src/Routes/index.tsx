@@ -4,7 +4,6 @@ import { lazy, Suspense } from "react";
 
 const Home = lazy(() => import("../pages/Home"));
 const Cliente = lazy(() => import("../pages/Clientes"));
-const Dependentes = lazy(() => import("../pages/Dependentes"));
 const Hospedagem = lazy(() => import("../pages/Hospedagens"));
 const Acomodacoes = lazy(() => import("../pages/Acomodacoes"));
 
@@ -19,10 +18,12 @@ const AppRoutes = createHashRouter([
       {
         path: "/clientes",
         element: <Suspense fallback={<div>Carregando...</div>} children={<Cliente />} />,
-      },
-      {
-        path: "/dependentes",
-        element: <Suspense fallback={<div>Carregando...</div>} children={<Dependentes />} />,
+        children: [
+          {
+            path: ":clienteId",
+            element: <Suspense fallback={<div>Carregando...</div>} children={<Cliente />} />,
+          },
+        ],
       },
       {
         path: "/hospedagens",

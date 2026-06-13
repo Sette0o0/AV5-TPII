@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum AcomodacoesEnum {
+  solteiro_simples
+  casal_simples
+  familia_simples
+  familia_mais
+  solteiro_mais
+  familia_super
+}
+
+enum TiposDocumentoEnum {
+  cpf
+  rg
+  passaporte
+}
+
+model Acomodacao {
+  id           Int             @id @default(autoincrement())
+  nome         AcomodacoesEnum @unique
+  camaSolteiro Int
+  camaCasal    Int
+  suite        Int
+  climatizacao Boolean
+  garagem      Int
+  hospedagems  Hospedagem[]
+}
+
+model Telefone {
+  id       Int       @id @default(autoincrement())
+  ddd      String
+  numero   String
+  clientes Cliente[]
+}
+
+model Endereco {
+  id           Int       @id @default(autoincrement())
+  rua          String
+  bairro       String
+  cidade       String
+  estado       String
+  pais         String
+  codigoPostal String
+  clientes     Cliente[]
+}
+
+model Documento {
+  id            Int                @id @default(autoincrement())
+  numero        String
+  tipo          TiposDocumentoEnum
+  dataExpedicao DateTime
+  cliente       Cliente?           @relation(fields: [clienteId], references: [id])
+  clienteId     Int?
+}
+
+model Cliente {
+  id             Int      @id @default(autoincrement())
+  nome           String
+  nomeSocial     String
+  dataNascimento DateTime
+  dataCadastro   DateTime
+
+  endereco   Endereco @relation(fields: [enderecoId], references: [id])
+  enderecoId Int
+  titular    Cliente? @relation("DependentesTitular", fields: [titularId], references: [id])
+  titularId  Int?
+
+  telefones   Telefone[]
+  documentos  Documento[]
+  dependentes Cliente[]    @relation("DependentesTitular")
+  hospedagems Hospedagem[]
+}
+
+model Hospedagem {
+  id          Int       @id @default(autoincrement())
+  dataEntrada DateTime
+  dataSaida   DateTime?
+
+  cliente      Cliente    @relation(fields: [clienteId], references: [id])
+  clienteId    Int
+  acomodacao   Acomodacao @relation(fields: [acomodacaoId], references: [id])
+  acomodacaoId Int
+}

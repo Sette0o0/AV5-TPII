@@ -1,8 +1,31 @@
-import data from "@/mockdata.json";
-import type { Cliente } from "@/types/entidades";
+import type { GetClienteByIdRes, GetClientesRes } from "@/types/responses";
+import api from "./api";
+import type { PostClienteTitularReq } from "@/types/requests";
 
-const clientes = data.clientes as unknown as Cliente[]
+export async function listarClientes() {
+  try {
+    const clientes = await api.get<GetClientesRes[]>("/clientes")
 
-export async function listarClientes(): Promise<Cliente[]> {
-  return clientes
+    return clientes.data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export async function buscarCliente(clienteId: string | number) {
+  try {
+    const cliente = await api.get<GetClienteByIdRes>(`/clientes/${clienteId}`)
+
+    return cliente.data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export async function cadastrarTitular(payload: PostClienteTitularReq) {
+  try {
+    await api.post("/clientes", payload)
+  } catch (error) {
+    console.log(error)
+  }
 }

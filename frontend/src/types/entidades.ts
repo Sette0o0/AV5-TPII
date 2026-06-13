@@ -1,21 +1,23 @@
-import type { NomeAcomadacao, TipoDocumento } from "./enums";
+import type { AcomodacoesEnum, TiposDocumentoEnum } from "./enums";
 
 export type Acomodacao = {
-  nomeAcomadacao: NomeAcomadacao;
-  camaSolteiro: Number;
-  camaCasal: Number;
-  suite: Number;
-  climatizacao: Boolean;
-  garagem: Number;
+  id: number;
+  nome: AcomodacoesEnum;
+  camaSolteiro: number;
+  camaCasal: number;
+  suite: number;
+  climatizacao: boolean;
+  garagem: number;
 };
 
 export type Documento = {
   numero: string;
-  tipo: TipoDocumento;
-  dataExpedicao: Date | string;
+  tipo: TiposDocumentoEnum;
+  dataExpedicao: string;
 };
 
 export type Endereco = {
+  id: number;
   rua: string;
   bairro: string;
   cidade: string;
@@ -25,24 +27,25 @@ export type Endereco = {
 };
 
 export type Hospedagem = {
-  cliente: Cliente;
-  acomodacao: Acomodacao;
-  dataEntrada: Date | string;
+  id: number;
+  dataEntrada: string;
+  dataSaida: string | null;
+  clienteId: number;
+  acomodacaoId: number;
 };
 
 export type Telefone = {
+  id: number;
   ddd: string;
   numero: string;
 };
 
 export type Cliente = {
+  id: number;
   nome: string;
   nomeSocial: string;
-  dataNascimento: Date | string;
-  dataCadastro: Date | string;
-  telefones: Telefone[];
-  endereco: Endereco;
-  documentos: Documento[];
-  dependentes: Cliente[];
-  titular: Cliente | null;
+  dataNascimento: string;
+  dataCadastro: string;
+  enderecoId: number;
+  titularId: number | null;
 };
