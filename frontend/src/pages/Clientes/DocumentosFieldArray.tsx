@@ -10,40 +10,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TiposDocumentoEnum } from "@/types/enums";
-import type { PostClienteTitularReq } from "@/types/requests";
+import type { ClientePayload } from "@/types/requests";
 import { Plus, Trash2 } from "lucide-react";
 import { Controller, useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
-const TODOS_TIPOS = [
+const todosTipos = [
   { value: TiposDocumentoEnum.cpf, label: "CPF" },
   { value: TiposDocumentoEnum.rg, label: "RG" },
   { value: TiposDocumentoEnum.passaporte, label: "Passaporte" },
 ];
 
-const MAX_DOCUMENTOS = 3;
+const maxDocumentos = 3;
 
 export default function DocumentosFieldArray() {
-  const { register, control } = useFormContext<PostClienteTitularReq>();
+  const { register, control } = useFormContext<ClientePayload>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "documentos",
   });
 
   const documentosWatch = useWatch({ control, name: "documentos" });
-  const tiposUsados = documentosWatch?.map((d) => d?.tipo).filter(Boolean) ?? [];
-
-  const tiposDisponiveis = TODOS_TIPOS.filter((t) => !tiposUsados.includes(t.value));
+  const tiposUsados = documentosWatch?.map((documento) => documento?.tipo).filter(Boolean) ?? [];
+  const tiposDisponiveis = todosTipos.filter((tipo) => !tiposUsados.includes(tipo.value));
 
   return (
     <FieldGroup className="flex flex-col gap-4">
       {fields.map((field, index) => {
         const tipoAtual = documentosWatch?.[index]?.tipo;
-        const opcoes = TODOS_TIPOS.filter(
-          (t) => !tiposUsados.includes(t.value) || t.value === tipoAtual,
+        const opcoes = todosTipos.filter(
+          (tipo) => !tiposUsados.includes(tipo.value) || tipo.value === tipoAtual,
         );
 
         return (
-          <div key={field.id} className="flex flex-col gap-3 p-3 border rounded-md relative">
+          <div key={field.id} className="relative flex flex-col gap-3 rounded-md border p-3">
             {fields.length > 1 && (
               <Button
                 type="button"
@@ -57,20 +56,20 @@ export default function DocumentosFieldArray() {
             )}
 
             <Field>
-              <FieldLabel>Tipo Documento</FieldLabel>
+              <FieldLabel>Tipo de documento</FieldLabel>
               <Controller
                 name={`documentos.${index}.tipo`}
                 control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo de documento" />
+                render={({ field: controllerField }) => (
+                  <Select onValueChange={controllerField.onChange} value={controllerField.value}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        {opcoes.map((t) => (
-                          <SelectItem key={t.value} value={t.value}>
-                            {t.label}
+                        {opcoes.map((tipo) => (
+                          <SelectItem key={tipo.value} value={tipo.value}>
+                            {tipo.label}
                           </SelectItem>
                         ))}
                       </SelectGroup>
@@ -80,17 +79,17 @@ export default function DocumentosFieldArray() {
               />
             </Field>
 
-            <FieldGroup className="grid grid-cols-1 @sm:grid-cols-2 gap-5!">
+            <FieldGroup className="grid grid-cols-1 gap-5! @sm:grid-cols-2">
               <Field>
-                <FieldLabel>Número:</FieldLabel>
+                <FieldLabel>Numero</FieldLabel>
                 <Input
                   {...register(`documentos.${index}.numero`)}
                   type="number"
-                  placeholder="Número do documento..."
+                  placeholder="Numero do documento"
                 />
               </Field>
               <Field>
-                <FieldLabel>Data de Expedição:</FieldLabel>
+                <FieldLabel>Data de expedicao</FieldLabel>
                 <Input {...register(`documentos.${index}.dataExpedicao`)} type="date" />
               </Field>
             </FieldGroup>
@@ -98,7 +97,7 @@ export default function DocumentosFieldArray() {
         );
       })}
 
-      {fields.length < MAX_DOCUMENTOS && tiposDisponiveis.length > 0 && (
+      {fields.length < maxDocumentos && tiposDisponiveis.length > 0 && (
         <Button
           type="button"
           variant="outline"
@@ -112,7 +111,7 @@ export default function DocumentosFieldArray() {
             })
           }
         >
-          <Plus className="size-4 mr-1" />
+          <Plus className="size-4" />
           Adicionar documento
         </Button>
       )}

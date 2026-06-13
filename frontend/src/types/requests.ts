@@ -1,4 +1,4 @@
-import type { TiposDocumentoEnum } from "./enums";
+import type { AcomodacoesEnum, TiposDocumentoEnum } from "./enums";
 
 export type EnderecoPost = {
   rua: string;
@@ -35,3 +35,28 @@ export type PostClienteDependentesReq = {
   dataNascimento: string;
   documentos: DocumentoPost[];
 }[];
+
+export type ClientePayload = PostClienteTitularReq;
+
+export type DependentePayload = {
+  nome: string;
+  nomeSocial: string;
+  dataNascimento: string;
+  documentos: DocumentoPost[];
+};
+
+export type AcomodacaoPayload = {
+  nome: AcomodacoesEnum;
+  camaSolteiro: number;
+  camaCasal: number;
+  suite: number;
+  climatizacao: boolean;
+  garagem: number;
+};
+
+export type HospedagemPayload = {
+  clienteId: number;
+  acomodacaoId: number;
+  dataEntrada?: string;
+  dataSaida?: string | null;
+};

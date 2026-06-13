@@ -11,9 +11,11 @@ export type Acomodacao = {
 };
 
 export type Documento = {
+  id?: number;
   numero: string;
   tipo: TiposDocumentoEnum;
   dataExpedicao: string;
+  clienteId?: number;
 };
 
 export type Endereco = {
@@ -32,6 +34,8 @@ export type Hospedagem = {
   dataSaida: string | null;
   clienteId: number;
   acomodacaoId: number;
+  cliente?: ClienteCompleto;
+  acomodacao?: Acomodacao;
 };
 
 export type Telefone = {
@@ -48,4 +52,13 @@ export type Cliente = {
   dataCadastro: string;
   enderecoId: number;
   titularId: number | null;
+};
+
+export type ClienteCompleto = Cliente & {
+  telefones: Telefone[];
+  dependentes: ClienteCompleto[];
+  documentos: Documento[];
+  endereco: Endereco;
+  hospedagems: Hospedagem[];
+  titular: Cliente | null;
 };

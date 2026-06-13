@@ -188,7 +188,7 @@ async function main() {
             dataExpedicao: new Date("2016-08-12"),
           },
           {
-            numero: "MG1234567",
+            numero: "91234567",
             tipo: TiposDocumentoEnum.passaporte,
             dataExpedicao: new Date("2023-05-10"),
           },
